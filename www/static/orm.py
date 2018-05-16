@@ -71,4 +71,48 @@ class Field(object):
         return '<%s,%s:%s>' % (self.__class__.__name__,self.column_type,self.name)
 
 class StringField(Field):
-    def __init__(self,name=None,primary_key
+    def __init__(self,name=None,primary_key=False,defaultt=None,ddl='varchar(100)'):
+        super.__init__(name,ddl,primary_key,default)
+
+class BooleanField(Field):
+
+    def __init__(self,name=None,primary_key=False,default=None,ddl='varchar(100)'):
+        super().__init__(name,'boolean',False,default)
+
+class IntergerField(Field):
+    def __init__(self,name=None,primary_key=False,default=0):
+        super().__init__(name,'real',primary_key,default)
+
+class TextField(Field):
+
+    def __init__(self,name=None,default=None):
+        super().__init__(name,'text',False,default)
+u
+class ModelMetaclass(type):
+
+    def __new__(cls,name,bases,attrs):
+        if name=='Model':
+            return type.__new__(cls,name,bases,attrs)
+        tableName=attrs.get('__table__',None) or name
+        logging.info('found model:%s (table:%s)'%(name,tableName))
+        mappings=dict()
+        fields=[]
+        primaryKey=None
+        for k,v in attrs.items():
+            if isinstance(v,Field):
+                logging.info('  found mapping: %s ==>%s'%(k.v))
+                mapping[k]=v
+                if v.primary_key:
+                    if primaryKey:
+                        raise StandardError('Duplicate primary key for field:%s' %k)
+                    primaryKey=k
+                else:
+                    fields.append(k)
+            if not primaryKey:
+                raise StandardError('Primary key not found.')
+            for k in mapping.keys():
+                attrs.pop(k)
+                escaped_fields=list(map(lambda f:f: '`%s`' % f, fields))
+                attrs['__mappings__']=mappings
+                attrs['__table__']=tableName
+                attrs['__primary_key__']
